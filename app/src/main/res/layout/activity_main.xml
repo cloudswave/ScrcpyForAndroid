@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1D2228"
-    android:orientation="vertical">
+    android:background="#1D2228">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_gravity="top"
+        android:layout_alignParentTop="true"
         android:background="#3C93F0">
 
         <TextView
@@ -22,7 +21,7 @@
             android:layout_marginBottom="5dp"
             android:gravity="center_vertical"
             android:padding="20dp"
-            android:text="Scrcpy For Android"
+            android:text="云手机by搞机玩家"
             android:textColor="@color/white" />
 
     </FrameLayout>
@@ -32,8 +31,8 @@
         android:id="@+id/main_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="top"
-        android:layout_marginTop="80dp">
+        android:layout_marginTop="80dp"
+        android:layout_marginBottom="60dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -258,4 +257,12 @@
                 android:textSize="16sp" />
         </LinearLayout>
     </ScrollView>
-</FrameLayout>
+
+    <include
+        android:id="@+id/bottom_navigation"
+        layout="@layout/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

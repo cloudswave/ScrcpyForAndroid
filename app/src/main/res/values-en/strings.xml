@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">云手机</string>
+    <string name="app_name">Cloud Phone</string>
 
     <string name="label_server_ip">Remote Device IP address, For example: 192.168.0.73</string>
     <string name="label_video_resolution">Resolution</string>
@@ -9,7 +9,7 @@
     <string name="action_start">Start</string>
     <string name="appswitch_button">=</string>
     <string name="home_button">o</string>
-    <string name="back_button">\u003C</string>
+    <string name="back_button">&lt;</string>
     <string name="switch0">Viewing mode (no control)</string>
     <string name="switch1">Bottom control button (back button)</string>
 
@@ -25,15 +25,15 @@
     <string name="need_register">Registration required</string>
 
     <!-- Device List Activity -->
-    <string name="fill_all_fields">请填写所有字段</string>
-    <string name="device_updated_successfully">设备更新成功</string>
-    <string name="delete">删除</string>
-    <string name="device_deleted_successfully">设备删除成功</string>
-    <string name="save">保存</string>
-    <string name="confirm">确认</string>
-    <string name="device_added_successfully">设备添加成功</string>
-    <string name="device_name">设备名称</string>
-    <string name="long_press_tips">tips:长按编辑或删除</string>
+    <string name="fill_all_fields">Please fill in all fields</string>
+    <string name="device_updated_successfully">Device updated successfully</string>
+    <string name="delete">Delete</string>
+    <string name="device_deleted_successfully">Device deleted successfully</string>
+    <string name="save">Save</string>
+    <string name="confirm">Confirm</string>
+    <string name="device_added_successfully">Device added successfully</string>
+    <string name="device_name">Device Name</string>
+    <string name="long_press_tips">Tips: Long press to edit or delete</string>
 
     <string-array name="options_resolution_values">
         <item>1920x1080</item>
@@ -72,5 +72,3 @@
     </integer-array>
 
 </resources>
-
-

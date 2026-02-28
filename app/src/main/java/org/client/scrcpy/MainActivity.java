@@ -44,6 +44,7 @@ import org.client.scrcpy.utils.PreUtils;
 import org.client.scrcpy.utils.Progress;
 import org.client.scrcpy.utils.ThreadUtils;
 import org.client.scrcpy.utils.Util;
+import org.client.scrcpy.navigation.NavigationManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -185,12 +186,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         // 读取屏幕是横屏、还是竖屏
         landscape = getApplication().getResources().getConfiguration().orientation
                 != Configuration.ORIENTATION_PORTRAIT;
-        if (first_time) {
-            scrcpy_main();
-        } else {
-            Log.e("Scrcpy: ", "from onCreate");
-            start_screen_copy_magic();
-        }
+        
         sensorManager = (SensorManager) this.getSystemService(SENSOR_SERVICE);
         Sensor proximity;
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
@@ -206,6 +202,16 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 headlessMode = getIntent().getExtras().getBoolean(START_REMOTE, headlessMode);
             }
         }
+        
+        // 不再自动跳转到设备列表页面，用户可以通过底部导航栏手动切换
+        
+        if (first_time) {
+            scrcpy_main();
+        } else {
+            Log.e("Scrcpy: ", "from onCreate");
+            start_screen_copy_magic();
+        }
+        
         if (headlessMode && first_time) {
             getAttributes();
             connectScrcpyServer(PreUtils.get(this, Constant.CONTROL_REMOTE_ADDR, ""));
@@ -267,6 +273,18 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             Log.i("Scrcpy", "focus true");
             editText.clearFocus();
             showListPopulWindow(editText);
+        });
+
+        // 底部导航点击事件
+        Button btnHome = findViewById(R.id.btn_home);
+        Button btnDeviceList = findViewById(R.id.btn_device_list);
+
+        btnHome.setOnClickListener(v -> {
+            // 已经在首页，无需操作
+        });
+
+        btnDeviceList.setOnClickListener(v -> {
+            NavigationManager.getInstance().navigateToDeviceList(MainActivity.this);
         });
 
         // 无头模式，实际上要隐藏掉所有控件，否则会被显示出 ip 地址
