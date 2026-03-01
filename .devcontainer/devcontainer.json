@@ -1,0 +1,38 @@
+{
+  "name": "Ubuntu (Java 17) - Scrcpy Android",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "installGradle": true,
+      "installMaven": true,
+      "installAnt": true,
+      "version": "17.0.10-tem",  // 使用 Temurin 17 稳定版本
+      "jdkDistro": "temurin",
+      "gradleVersion": "8.6",     // 保持和 gradle-wrapper.properties 一致
+      "mavenVersion": "3.9.5",
+      "antVersion": "1.10.13"
+    },
+    "ghcr.io/balazs23/devcontainers-features/bazel:1": {
+      "bazelisk": "latest"
+    },
+    "ghcr.io/akhildevelops/devcontainer-features/android-cli:latest": {
+      "PACKAGES": "platform-tools,platforms;android-31,build-tools;31.0.0,build-tools;30.0.3",
+      "acceptLicenses": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",  // 自动适配 Java 17
+        "naco-siren.gradle-language",
+        "adelphes.android-dev-ext",
+        "google.vscode-android-emulator",
+        "redhat.java"
+      ]
+    }
+  },
+  "forwardPorts": [5037, 8080],
+  "postCreateCommand": "echo 'export ANDROID_SDK_ROOT=/opt/android' >> ~/.bashrc && echo 'export PATH=$PATH:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/31.0.0' >> ~/.bashrc && echo 'export ANDROID_HOME=$ANDROID_SDK_ROOT' >> ~/.bashrc && echo 'export JAVA_HOME=/usr/local/sdkman/candidates/java/current' >> ~/.bashrc && . ~/.bashrc && java -version && gradle --version && adb version",
+  "remoteUser": "vscode",
+  "runArgs": ["--memory=8g", "--cpus=2"]
+}
