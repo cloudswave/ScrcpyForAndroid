@@ -15,4 +15,11 @@ public class Constant {
     public static final String DEVICE_LIST_KEY = "device_list_key";
     public static final String USER_ID = "user_id";
 
+    // 授权相关常量
+    public static final String AUTHORIZATION_KEY = "authorization_code";
+    public static final String IS_AUTHORIZED = "is_authorized";
+    
+    // API 地址
+    public static final String LICENSE_API_URL = "http://zjw.ethan.cloud-ip.biz/license/api.php";
+
 }

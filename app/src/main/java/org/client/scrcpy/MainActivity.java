@@ -39,6 +39,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.client.scrcpy.utils.AuthorizationService;
 import org.client.scrcpy.utils.HttpRequest;
 import org.client.scrcpy.utils.PreUtils;
 import org.client.scrcpy.utils.Progress;
@@ -175,6 +176,13 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.context = this;
+        
+        // 检查授权
+        if (!isAuthorized()) {
+            showAuthorizationDialog();
+            return;  // 授权完成前不继续初始化
+        }
+        
         if (savedInstanceState != null) {
             first_time = savedInstanceState.getBoolean("first_time");
             landscape = savedInstanceState.getBoolean("landscape");
@@ -849,6 +857,128 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         }
 //        Log.i("Scrcpy", "headlessMode： " + headlessMode +
 //                " ,resumeScrcpy: " + resumeScrcpy + " ,result_of_Rotation: " + result_of_Rotation);
+    }
+
+    /**
+     * 检查用户是否已授权
+     */
+    private boolean isAuthorized() {
+        return AuthorizationService.isAuthorized(context);
+    }
+
+    /**
+     * 显示授权对话框
+     */
+    private void showAuthorizationDialog() {
+        Dialog.displayEdit(MainActivity.this, 
+                "授权",
+                "",
+                "请输入授权码",
+                new Dialog.EditCallback() {
+                    @Override
+                    public void editClose(boolean confirm, EditText editText) {
+                        if (confirm) {
+                            String licenseKey = editText.getText().toString().trim();
+                            if (!TextUtils.isEmpty(licenseKey)) {
+                                validateAndSaveAuthorization(licenseKey);
+                            } else {
+                                Toast.makeText(MainActivity.this, "授权码不能为空", Toast.LENGTH_SHORT).show();
+                                showAuthorizationDialog();
+                            }
+                        } else {
+                            // 用户取消，关闭应用
+                            finish();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 验证授权码（通过 API 调用）
+     */
+    private void validateAndSaveAuthorization(String licenseKey) {
+        // 显示加载对话框
+        Progress.showDialog(MainActivity.this, "正在验证授权...");
+        
+        // 调用 AuthorizationService 验证授权
+        AuthorizationService.verifyLicense(context, licenseKey, new AuthorizationService.AuthorizationCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Progress.closeDialog();
+                
+                // 授权成功，继续初始化应用
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "授权成功", Toast.LENGTH_SHORT).show();
+                    continueOnCreate();
+                });
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Progress.closeDialog();
+                
+                // 授权失败，提示错误并再次显示授权对话框
+                runOnUiThread(() -> {
+                    Dialog.displayDialog(MainActivity.this, 
+                            "授权失败", 
+                            error,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    showAuthorizationDialog();
+                                }
+                            },
+                            false);  // 不允许取消
+                });
+            }
+        });
+    }
+
+
+    /**
+     * 继续执行 onCreate 的初始化逻辑
+     */
+    private void continueOnCreate() {
+        // 重新获取保存的状态（如果有）
+        Intent intent = getIntent();
+        Bundle extras = intent != null ? intent.getExtras() : null;
+        
+        // 读取屏幕是横屏、还是竖屏
+        landscape = getApplication().getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_PORTRAIT;
+        
+        sensorManager = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        Sensor proximity;
+        proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
+
+        // 从销毁状态恢复
+        if (extras == null || !extras.getBoolean("from_save_instance", false)) {
+            // 初次进入 app
+            if (extras != null) {
+                headlessMode = extras.getBoolean(START_REMOTE, headlessMode);
+            }
+        }
+        
+        // 不再自动跳转到设备列表页面，用户可以通过底部导航栏手动切换
+        
+        if (first_time) {
+            scrcpy_main();
+        } else {
+            Log.e("Scrcpy: ", "from onCreate");
+            start_screen_copy_magic();
+        }
+        
+        if (headlessMode && first_time) {
+            getAttributes();
+            connectScrcpyServer(PreUtils.get(this, Constant.CONTROL_REMOTE_ADDR, ""));
+        }
+        if (headlessMode) {
+            View scrollView = findViewById(R.id.main_scroll_view);
+            if (scrollView != null) {
+                scrollView.setVisibility(View.INVISIBLE);
+            }
+        }
     }
 
 }
