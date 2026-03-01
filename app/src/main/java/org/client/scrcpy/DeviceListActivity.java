@@ -48,8 +48,117 @@ public class DeviceListActivity extends Activity {
         setupClickListeners();
         setupBottomNavigation();
         
+        // Check clipboard for device list
+        checkClipboardForDevices();
+        
         // Start the screenshot update loop
         startScreenshotUpdates();
+    }
+    
+    private void checkClipboardForDevices() {
+        // Get clipboard manager
+        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        
+        // Check if clipboard has text
+        if (clipboard != null && clipboard.hasPrimaryClip()) {
+            android.content.ClipData clip = clipboard.getPrimaryClip();
+            if (clip != null && clip.getItemCount() > 0) {
+                CharSequence text = clip.getItemAt(0).getText();
+                if (text != null) {
+                    // Parse the clipboard text for IP:port format
+                    String clipboardText = text.toString();
+                    android.util.Log.d("DeviceListActivity", "Clipboard content: " + clipboardText);
+                    
+                    String[] lines = clipboardText.split("\\n");
+                    android.util.Log.d("DeviceListActivity", "Number of lines: " + lines.length);
+                    
+                    // List to store valid devices
+                    List<String> devicesFromClipboard = new ArrayList<>();
+                    
+                    // Regular expression for IP:port format
+                    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("^\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+$");
+                    
+                    for (String line : lines) {
+                        String trimmedLine = line.trim();
+                        android.util.Log.d("DeviceListActivity", "Processing line: '" + trimmedLine + "'");
+                        if (!trimmedLine.isEmpty()) {
+                            java.util.regex.Matcher matcher = pattern.matcher(trimmedLine);
+                            if (matcher.matches()) {
+                                devicesFromClipboard.add(trimmedLine);
+                                android.util.Log.d("DeviceListActivity", "Added valid device: " + trimmedLine);
+                            } else {
+                                android.util.Log.d("DeviceListActivity", "Invalid format: " + trimmedLine);
+                            }
+                        }
+                    }
+                    
+                    android.util.Log.d("DeviceListActivity", "Found " + devicesFromClipboard.size() + " valid devices");
+                    // If we found multiple devices, show import dialog
+                    if (devicesFromClipboard.size() > 1) {
+                        android.util.Log.d("DeviceListActivity", "Showing import dialog for " + devicesFromClipboard.size() + " devices");
+                        showImportDevicesDialog(devicesFromClipboard);
+                    }
+                } else {
+                    android.util.Log.d("DeviceListActivity", "Clipboard text is null");
+                }
+            } else {
+                android.util.Log.d("DeviceListActivity", "Clip is null or has no items");
+            }
+        } else {
+            android.util.Log.d("DeviceListActivity", "Clipboard is null or has no primary clip");
+        }
+    }
+    
+    private void showImportDevicesDialog(List<String> devices) {
+        // Create a dialog to ask user if they want to import the devices
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.import_devices));
+        builder.setMessage(getString(R.string.import_devices_message, devices.size()));
+        
+        builder.setPositiveButton(getString(R.string.import_button), (dialog, which) -> {
+            // Import the devices
+            importDevicesFromClipboard(devices);
+        });
+        
+        builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
+            dialog.dismiss();
+        });
+        
+        builder.create().show();
+    }
+    
+    private void importDevicesFromClipboard(List<String> devices) {
+        // Add devices to the list
+        int addedCount = 0;
+        for (String deviceIp : devices) {
+            // Check if the device already exists
+            boolean exists = false;
+            for (DeviceInfo device : deviceList) {
+                if (device.getIp().equals(deviceIp)) {
+                    exists = true;
+                    break;
+                }
+            }
+            
+            // If not exists, add it
+            if (!exists) {
+                deviceList.add(new DeviceInfo(deviceIp, deviceIp));
+                addedCount++;
+            }
+        }
+        
+        // Save the updated device list
+        updateDeviceListInPreferences();
+        
+        // Update the adapter
+        deviceAdapter.updateDevices(deviceList);
+        
+        // Show success message
+        if (addedCount > 0) {
+            Toast.makeText(this, getString(R.string.imported_devices_success, addedCount), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, getString(R.string.all_devices_exist), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void initViews() {
@@ -147,7 +256,10 @@ public class DeviceListActivity extends Activity {
     private void setupClickListeners() {
         if (addButton != null) {
             addButton.setOnClickListener(v -> {
+                // Show add device dialog
                 showAddDeviceDialog();
+                // Check clipboard for devices before showing add dialog
+                checkClipboardForDevices();
             });
         }
 

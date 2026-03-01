@@ -4,6 +4,9 @@
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Clipboard permission for Android 13+ -->
+    <uses-permission android:name="android.permission.READ_CLIPBOARD_IN_BACKGROUND" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_CLIPBOARD" />
 
     <application
         android:name=".App"

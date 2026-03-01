@@ -34,6 +34,14 @@
     <string name="device_added_successfully">Device added successfully</string>
     <string name="device_name">Device Name</string>
     <string name="long_press_tips">Tips: Long press to edit or delete</string>
+    
+    <!-- Clipboard Import -->
+    <string name="import_devices">Import Devices</string>
+    <string name="import_devices_message">Found %1$d devices in clipboard. Do you want to import them?</string>
+    <string name="import_button">Import</string>
+    <string name="cancel">Cancel</string>
+    <string name="imported_devices_success">Successfully imported %1$d devices</string>
+    <string name="all_devices_exist">All devices already exist</string>
 
     <string-array name="options_resolution_values">
         <item>1920x1080</item>

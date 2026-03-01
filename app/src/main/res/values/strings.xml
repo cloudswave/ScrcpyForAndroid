@@ -34,6 +34,14 @@
     <string name="device_added_successfully">设备添加成功</string>
     <string name="device_name">设备名称</string>
     <string name="long_press_tips">tips:长按编辑或删除</string>
+    
+    <!-- Clipboard Import -->
+    <string name="import_devices">导入设备</string>
+    <string name="import_devices_message">在粘贴板中发现 %1$d 个设备，是否导入？</string>
+    <string name="import_button">导入</string>
+    <string name="cancel">取消</string>
+    <string name="imported_devices_success">成功导入 %1$d 个设备</string>
+    <string name="all_devices_exist">所有设备已存在</string>
 
     <string-array name="options_resolution_values">
         <item>1920x1080</item>
