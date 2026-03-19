@@ -10,6 +10,7 @@
     <string name="appswitch_button">=</string>
     <string name="home_button">o</string>
     <string name="back_button">\u003C</string>
+    <string name="close_button">x</string>
     <string name="switch0">Viewing mode (no control)</string>
     <string name="switch1">Bottom control button (back button)</string>
 

@@ -455,6 +455,15 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             if (appswitchButton != null) {
                 appswitchButton.setOnClickListener(v -> scrcpy.sendKeyevent(KeyEvent.KEYCODE_APP_SWITCH));
             }
+
+            final View closeButton = findViewById(R.id.close_button);
+            if (closeButton != null) {
+                closeButton.setOnClickListener(v -> {
+                    // 用户点击关闭按钮后退出投屏并回到主界面
+                    showMainView(true);
+                    first_time = true;
+                });
+            }
         }
     }
 
