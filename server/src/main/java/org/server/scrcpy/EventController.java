@@ -166,19 +166,23 @@ public class EventController {
         pointer.setUp(pointerUp);
 
         int pointerCount = pointersState.update(pointerProperties, pointerCoords);
-        if (pointerCount == 1) {
+        if (pointerCount <= 1) {
+            if (actionType == MotionEvent.ACTION_POINTER_UP || actionType == MotionEvent.ACTION_UP) {
+                // If only one pointer remains, use ACTION_UP for compatibility.
+                action = MotionEvent.ACTION_UP;
+            } else if (actionType == MotionEvent.ACTION_POINTER_DOWN || actionType == MotionEvent.ACTION_DOWN) {
+                action = MotionEvent.ACTION_DOWN;
+            }
             if (action == MotionEvent.ACTION_DOWN) {
                 lastMouseDown = now;
             }
         } else {
             // secondary pointers must use ACTION_POINTER_* ORed with the pointerIndex
             // 与原版 scrcpy 相比，Android 传输的触控信息已经包含 ACTION_POINTER_UP ，此处需要新增兼容，否则多点触控会出现异常
-            if (action == MotionEvent.ACTION_UP || actionType == MotionEvent.ACTION_POINTER_UP) {
+            if (actionType == MotionEvent.ACTION_POINTER_UP || action == MotionEvent.ACTION_UP) {
                 action = MotionEvent.ACTION_POINTER_UP | (pointerIndex << MotionEvent.ACTION_POINTER_INDEX_SHIFT);
-                // Ln.w("按钮 Pointer 抬起");
-            } else if (action == MotionEvent.ACTION_DOWN || actionType == MotionEvent.ACTION_POINTER_DOWN) {
+            } else if (actionType == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_DOWN) {
                 action = MotionEvent.ACTION_POINTER_DOWN | (pointerIndex << MotionEvent.ACTION_POINTER_INDEX_SHIFT);
-                // Ln.w("按钮 Pointer 按下");
             }
         }
         // Ln.w("按钮事件，" + action + " ,lastMouseDown: " + lastMouseDown + " , now: " + now + " , pointerId: " + pointerId + " pointerCount: " + pointerCount);

@@ -152,31 +152,42 @@ public class Scrcpy extends Service {
             realW = realH * remoteW / remoteH;
         }
 
+        int action = touch_event.getActionMasked();
         int actionIndex = touch_event.getActionIndex();
-        int pointerId = touch_event.getPointerId(actionIndex);
         int pointCount = touch_event.getPointerCount();
-        // Log.e("Scrcpy", "pointer id: " + pointerId + " , action: " + touch_event.getAction() + " ,point count: " + pointCount + " x: " + touch_event.getX() + " y: " + touch_event.getY());
+        // Log.e("Scrcpy", "pointer id: " + pointerId + " , action: " + action + " ,point count: " + pointCount);
 
-        switch (touch_event.getAction()) {
+        switch (action) {
             case MotionEvent.ACTION_MOVE: // 所有手指移动
-                // 遍历所有触摸点，使用 pointerId 和 pointerIndex 来获取所有触摸点的信息
-                for (int i = 0; i < touch_event.getPointerCount(); i++) {
+                for (int i = 0; i < pointCount; i++) {
                     int currentPointerId = touch_event.getPointerId(i);
                     int x = (int) touch_event.getX(i);
                     int y = (int) touch_event.getY(i);
-                    // 处理每一个触摸点的x, y坐标
-                    // Log.e("Scrcpy", "触摸移动，index : " + i + " ,x : " + x + " , y: " + y + " ,currentPointerId: " + currentPointerId);
-                    sendTouchEvent(touch_event.getAction(), touch_event.getButtonState(), (int) (x * realW / displayW), (int) (y * realH / displayH), currentPointerId);
+                    sendTouchEvent(MotionEvent.ACTION_MOVE, touch_event.getButtonState(), (int) (x * realW / displayW), (int) (y * realH / displayH), currentPointerId);
                 }
                 break;
-            case MotionEvent.ACTION_POINTER_UP: // 中间手指抬起
-            case MotionEvent.ACTION_UP: // 最后一个手指抬起
-            case MotionEvent.ACTION_DOWN: // 第一个手指按下
-            case MotionEvent.ACTION_POINTER_DOWN: // 中间的手指按下
-            default:
-                sendTouchEvent(touch_event.getAction(), touch_event.getButtonState(), (int) (touch_event.getX() * realW / displayW), (int) (touch_event.getY() * realH / displayH), pointerId);
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_POINTER_UP:
+                if (actionIndex >= 0 && actionIndex < pointCount) {
+                    int pointerId = touch_event.getPointerId(actionIndex);
+                    int x = (int) touch_event.getX(actionIndex);
+                    int y = (int) touch_event.getY(actionIndex);
+                    sendTouchEvent(action, touch_event.getButtonState(), (int) (x * realW / displayW), (int) (y * realH / displayH), pointerId);
+                }
                 break;
-
+            case MotionEvent.ACTION_CANCEL:
+                for (int i = 0; i < pointCount; i++) {
+                    int pointerId = touch_event.getPointerId(i);
+                    int x = (int) touch_event.getX(i);
+                    int y = (int) touch_event.getY(i);
+                    sendTouchEvent(MotionEvent.ACTION_UP, touch_event.getButtonState(), (int) (x * realW / displayW), (int) (y * realH / displayH), pointerId);
+                }
+                break;
+            default:
+                // ignore unknown actions
+                break;
         }
         return true;
     }
