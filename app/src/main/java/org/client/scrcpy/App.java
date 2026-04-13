@@ -45,6 +45,10 @@ public class App extends Application implements Application.ActivityLifecycleCal
         }
     }
 
+    public static String adbCmd(String... cmd) {
+        return AdbHelper.adbCmd(mContext, cmd);
+    }
+
     public static Activity getCurActivity() {
         // 获取最新的一个 activity
         try {
