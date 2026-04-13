@@ -1,10 +1,7 @@
 name: Android CI
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:  # 手动触发
 
 jobs:
   build:
@@ -24,7 +21,12 @@ jobs:
       env:
         ENCODED_STRING: ${{ secrets.SIGNING_KEY }}  # Uses the encoded signing key stored in GitHub Secrets.
       run: |
-        echo $ENCODED_STRING | base64 -di > app/scrcpy.jks
+        if [ -n "$ENCODED_STRING" ]; then
+          echo $ENCODED_STRING | base64 -di > app/scrcpy.jks
+          echo "Keystore decoded successfully."
+        else
+          echo "No signing key found, skipping..."
+        fi
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew

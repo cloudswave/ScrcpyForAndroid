@@ -40,6 +40,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import org.client.scrcpy.utils.AuthorizationService;
+import org.client.scrcpy.utils.AdbHelper;
 import org.client.scrcpy.utils.HttpRequest;
 import org.client.scrcpy.utils.PreUtils;
 import org.client.scrcpy.utils.Progress;
@@ -55,6 +56,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, SensorEventListener {
@@ -86,8 +88,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     // private byte[] fileBase64;
     private LinearLayout linearLayout;
 
-    private int errorCount = 0;  // 连接失败错误的计数，错误超过一定次数重启服务
-
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -101,19 +101,18 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 scrcpy.start(surface, Scrcpy.LOCAL_IP + ":" + Scrcpy.LOCAL_FORWART_PORT,
                         screenHeight, screenWidth, delayControl);
                 ThreadUtils.workPost(() -> {
-                    int count = 50;
-                    while (count > 0 && !scrcpy.check_socket_connection()) {
-                        count--;
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    boolean success = AdbHelper.executeWithTimeout(() -> {
+                        while (!scrcpy.check_socket_connection()) {
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException e) {
+                                break;
+                            }
                         }
-                    }
-                    int finalCount = count;
+                    }, SendCommands.WAIT_TIME, TimeUnit.MILLISECONDS);
                     ThreadUtils.post(() -> {
                         Progress.closeDialog();
-                        if (finalCount == 0) {
+                        if (!success) {
                             if (serviceBound) {
                                 showMainView();
                             }
@@ -603,7 +602,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
 
 //    protected String wifiIpAddress() {
-////https://stackoverflow.com/questions/6064510/how-to-get-ip-address-of-the-device-from-code
+
+    /// /https://stackoverflow.com/questions/6064510/how-to-get-ip-address-of-the-device-from-code
 //        try {
 //            InetAddress ipv4 = null;
 //            InetAddress ipv6 = null;
@@ -637,8 +637,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 //        }
 //        return "127.0.0.1";
 //    }
-
-
     private void start_Scrcpy_service() {
         Intent intent = new Intent(this, Scrcpy.class);
         startService(intent);
@@ -683,16 +681,35 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 }, false);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (resumeScrcpy) {
+            // 返回到主页面，属于用户主动断开场景
+            showMainView(true);
+            first_time = true;
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("Scrcpy", "onStart: " + serviceBound);
+        if (resumeScrcpy) {
+            if (!serviceBound) {
+                resumeScrcpy = false;
+                connectScrcpyServer(PreUtils.get(context, Constant.CONTROL_REMOTE_ADDR, ""));
+            }
+        }
+    }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (serviceBound) {
+        Log.d("Scrcpy", "onPause: " + serviceBound);
+        if (serviceBound && scrcpy != null) {
             scrcpy.pause();
             resumeScrcpy = true;
-            // 返回到主页面，属于用户主动断开场景
-            showMainView(true);
-            first_time = true;
         }
     }
 
@@ -714,9 +731,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 scrcpy.resume();
             }
         }
-        if (resumeScrcpy && !result_of_Rotation) {
-            resumeScrcpy = false;
-            connectScrcpyServer(PreUtils.get(context, Constant.CONTROL_REMOTE_ADDR, ""));
+        if (resumeScrcpy && !result_of_Rotation && scrcpy != null) {
+            scrcpy.resume();
         }
         resumeScrcpy = false;  // 两处都要resumeScrcpy设置为false
         result_of_Rotation = false;
@@ -738,7 +754,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 if (serviceBound) {
                     showMainView(true);
                     first_time = true;
-                    errorCount = 0;  // 主动断开连接，将错误计数重置为 0
                 } else {
                     finish();
                 }
@@ -780,32 +795,13 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
             Progress.showDialog(MainActivity.this, getString(R.string.please_wait));
             ThreadUtils.workPost(() -> {
-                AssetManager assetManager = getAssets();
-                Log.d("Scrcpy", "File scrcpy-server.jar try write");
-                try {
-                    InputStream input_Stream = assetManager.open("scrcpy-server.jar");
-                    byte[] buffer = new byte[input_Stream.available()];
-                    input_Stream.read(buffer);
-                    File scrcpyDir = context.getExternalFilesDir("scrcpy");
-                    if (!scrcpyDir.exists()) {
-                        scrcpyDir.mkdirs();
-                    }
-                    FileOutputStream outputStream = new FileOutputStream(new File(
-                            context.getExternalFilesDir("scrcpy"), "scrcpy-server.jar"
-                    ));
-                    outputStream.write(buffer);
-                    outputStream.flush();
-                    outputStream.close();
-
-                    // fileBase64 = Base64.encode(buffer, 2);
-                } catch (IOException e) {
-                    Log.d("Scrcpy", "File scrcpy-server.jar write faild");
-                }
-                if (sendCommands.SendAdbCommands(context, serverHost,
+                AdbHelper.writeAssetsJarServer(App.mContext);
+                SendCommands.CmdStatus sendStatus = sendCommands.SendAdbCommands(context, serverHost,
                         serverPort,
                         localForwardPort,
                         Scrcpy.LOCAL_IP,
-                        videoBitrate, Math.max(screenHeight, screenWidth)) == 0) {
+                        videoBitrate, Math.max(screenHeight, screenWidth));
+                if (sendStatus == SendCommands.CmdStatus.SUCCESS) {
                     ThreadUtils.post(() -> {
                         if (!MainActivity.this.isFinishing()) {
                             // 进入主线程
@@ -829,7 +825,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
      * 连接成功了，而且成功的显示了画面出来
      */
     protected void connectSuccessExt() {
-        errorCount = 0;
+        Dialog.closeDialogs();
     }
 
     protected void connectExitExt() {
@@ -841,22 +837,17 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
      */
     protected void connectExitExt(boolean userDisconnect) {
         if (!userDisconnect) {  // userDisconnect : 用户主动断开连接
-            errorCount += 1;
-            // errorCount = 0;
-            Log.i("Scrcpy", "连接错误次数: " + errorCount);
-            // 错误 3 次，则重启 adb 服务
-            App.startAdbServer();
+            // 如果自动断开了端口连接，在系统恢复时，重启adb，避免
+            // 警告！！！ 重启将会导致 adb 配对过程失效，从而无法连接新设备，需要更智能的重启机制
+            // AdbHelper.restartAdb();
         }
-        // 如果是无头模式，自行弹出重连选项
         if (headlessMode && !resumeScrcpy && !result_of_Rotation) {
-            // 非用户主动断开、非页面切换、非横竖屏切换，才会自动弹出断连提示
             if (!userDisconnect) {
                 Dialog.displayDialog(this, getString(R.string.connect_faild),
                         getString(R.string.connect_faild_ask), () -> {
                             // 重试连接
                             connectScrcpyServer(PreUtils.get(context, Constant.CONTROL_REMOTE_ADDR, ""));
                         }, () -> {
-
                             // 取消重试
                             finishAndRemoveTask();
                         });
