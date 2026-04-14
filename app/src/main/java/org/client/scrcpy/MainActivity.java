@@ -497,6 +497,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         serverAdr = editTextServerHost.getText().toString();
         if (!TextUtils.isEmpty(serverAdr)) {
             serverAdr = serverAdr.trim();
+            // 如果没有端口号，默认添加5555端口
+            if (!serverAdr.contains(":")) {
+                serverAdr = serverAdr + ":5555";
+                editTextServerHost.setText(serverAdr);
+            }
         }
         if (!TextUtils.isEmpty(serverAdr)) {
             PreUtils.put(context, Constant.CONTROL_REMOTE_ADDR, serverAdr);

@@ -251,6 +251,8 @@ public class DeviceListActivity extends Activity {
     private void setupAdapter() {
         deviceAdapter = new DeviceAdapter(this, deviceList);
         deviceGrid.setAdapter(deviceAdapter);
+        // 加载完设备后立即更新截屏
+        updateScreenshots();
     }
 
     private void setupClickListeners() {
