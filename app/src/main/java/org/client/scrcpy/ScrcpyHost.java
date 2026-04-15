@@ -212,6 +212,7 @@ public class ScrcpyHost implements Scrcpy.ServiceCallbacks {
     }
 
     public void keyEvent(int keyCode) {
+        Log.d("ScrcpyHost", "keyEvent called, keyCode=" + keyCode);
         scrcpy.sendKeyevent(keyCode);
     }
 

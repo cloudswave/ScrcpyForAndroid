@@ -229,6 +229,7 @@ public class Scrcpy extends Service {
     }
 
     public void sendKeyevent(int keycode) {
+        Log.d("Scrcpy", "sendKeyevent: keycode=" + keycode);
         int[] buf = new int[]{keycode};
 
         final byte[] array = new byte[buf.length * 4];   // https://stackoverflow.com/questions/2183240/java-integer-to-byte-array

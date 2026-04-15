@@ -113,13 +113,13 @@ public class FloatService extends Service {
             public void onAction(int actionType) {
                 switch (actionType) {
                     case 0:
-                        scrcpyHost.keyEvent(4);
+                        Log.d("FloatService", "onAction: BACK key, keycode=4"); scrcpyHost.keyEvent(4);
                         break;
                     case 1:
-                        scrcpyHost.keyEvent(3);
+                        Log.d("FloatService", "onAction: HOME key, keycode=3"); scrcpyHost.keyEvent(3);
                         break;
                     case 2:
-                        scrcpyHost.keyEvent(187);
+                        Log.d("FloatService", "onAction: MENU key, keycode=187"); scrcpyHost.keyEvent(187);
                         break;
                 }
             }
