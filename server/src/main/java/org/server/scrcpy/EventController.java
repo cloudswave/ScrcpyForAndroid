@@ -77,18 +77,23 @@ public class EventController {
     }
 
     private int[] controlByteToIntArray(byte[] buf) {
-        final int[] array = new int[buf.length / 4];
+        return controlByteToIntArray(buf, 0);
+    }
+
+    private int[] controlByteToIntArray(byte[] buf, int offset) {
+        final int[] array = new int[(buf.length - offset) / 4];
         for (int i = 0; i < array.length; i++)
-            array[i] = (((int) (buf[i * 4]) << 24) & 0xFF000000) |
-                    (((int) (buf[i * 4 + 1]) << 16) & 0xFF0000) |
-                    (((int) (buf[i * 4 + 2]) << 8) & 0xFF00) |
-                    ((int) (buf[i * 4 + 3]) & 0xFF);
+            array[i] = (((int) (buf[offset + i * 4]) << 24) & 0xFF000000) |
+                    (((int) (buf[offset + i * 4 + 1]) << 16) & 0xFF0000) |
+                    (((int) (buf[offset + i * 4 + 2]) << 8) & 0xFF00) |
+                    ((int) (buf[offset + i * 4 + 3]) & 0xFF);
         return array;
     }
 
+
     private void injectControlEvenv(byte[] buf) {
         android.util.Log.d("EventController", "injectControlEvenv: buf.length=" + buf.length + ", buf[0]=" + buf[0]);
-        int[] buffer = controlByteToIntArray(buf);
+        int[] buffer = controlByteToIntArray(buf, 1); // 跳过 1 字节 type
         android.util.Log.d("EventController", "buffer[0]=" + buffer[0] + ", buffer[1]=" + buffer[1]);
 
         long now = SystemClock.uptimeMillis();
