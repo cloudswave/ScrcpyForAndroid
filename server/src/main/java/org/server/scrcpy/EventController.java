@@ -77,24 +77,17 @@ public class EventController {
     }
 
     private int[] controlByteToIntArray(byte[] buf) {
-        return controlByteToIntArray(buf, 0);
-    }
-
-    private int[] controlByteToIntArray(byte[] buf, int offset) {
-        final int[] array = new int[(buf.length - offset) / 4];
+        final int[] array = new int[buf.length / 4];
         for (int i = 0; i < array.length; i++)
-            array[i] = (((int) (buf[offset + i * 4]) << 24) & 0xFF000000) |
-                    (((int) (buf[offset + i * 4 + 1]) << 16) & 0xFF0000) |
-                    (((int) (buf[offset + i * 4 + 2]) << 8) & 0xFF00) |
-                    ((int) (buf[offset + i * 4 + 3]) & 0xFF);
+            array[i] = (((int) (buf[i * 4]) << 24) & 0xFF000000) |
+                    (((int) (buf[i * 4 + 1]) << 16) & 0xFF0000) |
+                    (((int) (buf[i * 4 + 2]) << 8) & 0xFF00) |
+                    ((int) (buf[i * 4 + 3]) & 0xFF);
         return array;
     }
 
-
     private void injectControlEvenv(byte[] buf) {
-        android.util.Log.d("EventController", "injectControlEvenv: buf.length=" + buf.length + ", buf[0]=" + buf[0]);
         int[] buffer = controlByteToIntArray(buf);
-        android.util.Log.d("EventController", "buffer[0]=" + buffer[0] + ", buffer[1]=" + buffer[1]);
 
         long now = SystemClock.uptimeMillis();
         if (buffer[2] == 0 && buffer[3] == 0) {
@@ -222,23 +215,19 @@ public class EventController {
         pointer.setUp(pointerUp);
 
         int pointerCount = pointersState.update(pointerProperties, pointerCoords);
-        if (pointerCount <= 1) {
-            if (actionType == MotionEvent.ACTION_POINTER_UP || actionType == MotionEvent.ACTION_UP) {
-                // If only one pointer remains, use ACTION_UP for compatibility.
-                action = MotionEvent.ACTION_UP;
-            } else if (actionType == MotionEvent.ACTION_POINTER_DOWN || actionType == MotionEvent.ACTION_DOWN) {
-                action = MotionEvent.ACTION_DOWN;
-            }
+        if (pointerCount == 1) {
             if (action == MotionEvent.ACTION_DOWN) {
                 lastMouseDown = now;
             }
         } else {
             // secondary pointers must use ACTION_POINTER_* ORed with the pointerIndex
             // 与原版 scrcpy 相比，Android 传输的触控信息已经包含 ACTION_POINTER_UP ，此处需要新增兼容，否则多点触控会出现异常
-            if (actionType == MotionEvent.ACTION_POINTER_UP || action == MotionEvent.ACTION_UP) {
+            if (action == MotionEvent.ACTION_UP || actionType == MotionEvent.ACTION_POINTER_UP) {
                 action = MotionEvent.ACTION_POINTER_UP | (pointerIndex << MotionEvent.ACTION_POINTER_INDEX_SHIFT);
-            } else if (actionType == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_DOWN) {
+                // Ln.w("按钮 Pointer 抬起");
+            } else if (action == MotionEvent.ACTION_DOWN || actionType == MotionEvent.ACTION_POINTER_DOWN) {
                 action = MotionEvent.ACTION_POINTER_DOWN | (pointerIndex << MotionEvent.ACTION_POINTER_INDEX_SHIFT);
+                // Ln.w("按钮 Pointer 按下");
             }
         }
         // Ln.w("按钮事件，" + action + " ,lastMouseDown: " + lastMouseDown + " , now: " + now + " , pointerId: " + pointerId + " pointerCount: " + pointerCount);
@@ -314,7 +303,6 @@ public class EventController {
     }
 
     private boolean injectKeycode(int keyCode) {
-        android.util.Log.d("EventController", "injectKeycode called, keyCode=" + keyCode);
         return injectKeyEvent(KeyEvent.ACTION_DOWN, keyCode, 0, 0)
                 && injectKeyEvent(KeyEvent.ACTION_UP, keyCode, 0, 0);
     }
