@@ -556,13 +556,14 @@ public class DeviceListActivity extends Activity {
                                 String screenshotPath = ScrcpyClient.getScreenshotFromDevice(ip, port);
                                 if (screenshotPath != null) {
                                     // Update the device's last screenshot path
-                                    device.setLastScreenshotPath(screenshotPath);
-                                    
-                                    // Update screenshot preview after getting the screenshot
-                                    runOnUiThread(() -> {
-                                        // Update the screenshot for this device
-                                        deviceAdapter.notifyDataSetChanged();
-                                    });
+                                device.setLastScreenshotPath(screenshotPath);
+
+                                // Save screenshot path to preferences immediately
+                                runOnUiThread(() -> {
+                                    updateDeviceListInPreferences();
+                                    // Update the screenshot for this device
+                                    deviceAdapter.notifyDataSetChanged();
+                                });
                                 }
                             } else {
                                 // Device not reachable, clear screenshot
