@@ -241,9 +241,7 @@ public class Scrcpy extends Service {
             array[j * 4 + 3] = (byte) (c & 0xFF);
         }
         if (LetServceRunning.get()) {
-            // 使用 ControlPacket.toArray 包装，与 sendTouchEvent 保持一致
-            byte[] data = ControlPacket.toArray(MediaPacket.Type.CONTROL, array);
-            event.offer(data);
+            event.offer(array);
         }
     }
 

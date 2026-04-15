@@ -93,7 +93,7 @@ public class EventController {
 
     private void injectControlEvenv(byte[] buf) {
         android.util.Log.d("EventController", "injectControlEvenv: buf.length=" + buf.length + ", buf[0]=" + buf[0]);
-        int[] buffer = controlByteToIntArray(buf, 1); // 跳过 1 字节 type
+        int[] buffer = controlByteToIntArray(buf);
         android.util.Log.d("EventController", "buffer[0]=" + buffer[0] + ", buffer[1]=" + buffer[1]);
 
         long now = SystemClock.uptimeMillis();
