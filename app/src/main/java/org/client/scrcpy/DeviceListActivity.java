@@ -194,12 +194,17 @@ public class DeviceListActivity extends Activity {
                     try {
                         org.json.JSONObject jsonObject = jsonArray.getJSONObject(i);
                         String name = jsonObject.optString("name", "");
+                    String screenshot = jsonObject.optString("screenshot", null);
                         String ip = jsonObject.getString("ip");
                         // If name is empty, use IP as name
                         if (name.isEmpty()) {
                             name = ip;
                         }
-                        deviceList.add(new DeviceInfo(name, ip));
+                    DeviceInfo device = new DeviceInfo(name, ip);
+                    if (screenshot != null && !screenshot.isEmpty()) {
+                        device.setLastScreenshotPath(screenshot);
+                    }
+                    deviceList.add(device);
                     } catch (org.json.JSONException e) {
                         // If it's not an object, try as string (old format)
                         String ip = jsonArray.getString(i);
@@ -251,8 +256,6 @@ public class DeviceListActivity extends Activity {
     private void setupAdapter() {
         deviceAdapter = new DeviceAdapter(this, deviceList);
         deviceGrid.setAdapter(deviceAdapter);
-        // 加载完设备后立即更新截屏
-        updateScreenshots();
     }
 
     private void setupClickListeners() {
@@ -491,7 +494,12 @@ public class DeviceListActivity extends Activity {
                 historyList.append(",");
                 homeHistoryList.append(",");
             }
-            historyList.append("{\"name\":\"").append(deviceList.get(i).getName()).append("\",\"ip\":\"").append(deviceList.get(i).getIp()).append("\"}");
+            String screenshotPath = deviceList.get(i).getLastScreenshotPath();
+                if (screenshotPath != null && !screenshotPath.isEmpty()) {
+                    historyList.append("{\"name\":\"").append(deviceList.get(i).getName()).append("\",\"ip\":\"").append(deviceList.get(i).getIp()).append("\",\"screenshot\":\"").append(screenshotPath).append("\"}");
+                } else {
+                    historyList.append("{\"name\":\"").append(deviceList.get(i).getName()).append("\",\"ip\":\"").append(deviceList.get(i).getIp()).append("\"}");
+                }
             homeHistoryList.append("\"").append(deviceList.get(i).getIp()).append("\"");
         }
         historyList.append("]");
