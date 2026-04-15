@@ -21,6 +21,26 @@ public class ScrcpyClient {
      * @param port The port number
      * @return true if connection is successful, false otherwise
      */
+
+    private static void cleanupOldScreenshots(String ip, int port, String keepPath) {
+        try {
+            String cacheDir = App.mContext.getCacheDir().getAbsolutePath();
+            String prefix = ip.replace(".", "_") + "_" + port + "_";
+            java.io.File cacheDirFile = new java.io.File(cacheDir);
+            java.io.File[] files = cacheDirFile.listFiles((dir, name) ->
+                name.startsWith(prefix) && name.endsWith(".png"));
+            if (files != null && files.length > 1) {
+                for (java.io.File file : files) {
+                    if (!file.getAbsolutePath().equals(keepPath)) {
+                        file.delete();
+                        Log.d(TAG, "Deleted old screenshot: " + file.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error cleaning up old screenshots", e);
+        }
+    }
     public static boolean isDeviceReachable(String ip, int port) {
         Socket socket = null;
         try {
@@ -124,6 +144,9 @@ public class ScrcpyClient {
             App.adbCmd("-s", deviceKey, "shell", "rm", tempScreenshotPath);
             
             Log.d(TAG, "Screenshot saved to: " + localPath + ", size: " + finalSize + " bytes");
+
+        // Clean up old screenshots for this device, keep only the latest one
+        cleanupOldScreenshots(ip, port, localPath);
             return localPath;
         } catch (Exception e) {
             Log.e(TAG, "Error getting screenshot", e);
