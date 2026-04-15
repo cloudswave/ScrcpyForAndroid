@@ -87,7 +87,9 @@ public class EventController {
     }
 
     private void injectControlEvenv(byte[] buf) {
+        android.util.Log.d("EventController", "injectControlEvenv: buf.length=" + buf.length + ", buf[0]=" + buf[0]);
         int[] buffer = controlByteToIntArray(buf);
+        android.util.Log.d("EventController", "buffer[0]=" + buffer[0] + ", buffer[1]=" + buffer[1]);
 
         long now = SystemClock.uptimeMillis();
         if (buffer[2] == 0 && buffer[3] == 0) {
@@ -307,6 +309,7 @@ public class EventController {
     }
 
     private boolean injectKeycode(int keyCode) {
+        android.util.Log.d("EventController", "injectKeycode called, keyCode=" + keyCode);
         return injectKeyEvent(KeyEvent.ACTION_DOWN, keyCode, 0, 0)
                 && injectKeyEvent(KeyEvent.ACTION_UP, keyCode, 0, 0);
     }
