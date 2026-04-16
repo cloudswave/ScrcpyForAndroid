@@ -230,16 +230,20 @@ public class Scrcpy extends Service {
 
     public void sendKeyevent(int keycode) {
         Log.d("Scrcpy", "sendKeyevent: keycode=" + keycode);
-        int[] buf = new int[]{keycode};
-
-        final byte[] array = new byte[buf.length * 4];   // https://stackoverflow.com/questions/2183240/java-integer-to-byte-array
-        for (int j = 0; j < buf.length; j++) {
-            final int c = buf[j];
-            array[j * 4] = (byte) ((c & 0xFF000000) >> 24);
-            array[j * 4 + 1] = (byte) ((c & 0xFF0000) >> 16);
-            array[j * 4 + 2] = (byte) ((c & 0xFF00) >> 8);
-            array[j * 4 + 3] = (byte) (c & 0xFF);
-        }
+        // 原版 scrcpy 协议: action(1字节) + keycode(4字节) + metaState(4字节) = 9字节
+        // action=0 表示按下 (DOWN), metaState=0
+        byte[] array = new byte[9];
+        array[0] = 0; // ACTION_DOWN = 0
+        // keycode (小端序)
+        array[1] = (byte) (keycode & 0xFF);
+        array[2] = (byte) ((keycode >> 8) & 0xFF);
+        array[3] = (byte) ((keycode >> 16) & 0xFF);
+        array[4] = (byte) ((keycode >> 24) & 0xFF);
+        // metaState = 0
+        array[5] = 0;
+        array[6] = 0;
+        array[7] = 0;
+        array[8] = 0;
         if (LetServceRunning.get()) {
             event.offer(array);
         }

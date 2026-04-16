@@ -87,6 +87,16 @@ public class EventController {
     }
 
     private void injectControlEvenv(byte[] buf) {
+    // 9字节格式: action(1) + keycode(4) + metaState(4) - 与原版 scrcpy 协议一致
+    if (buf.length >= 9) {
+        int action = buf[0] & 0xFF;
+        int keycode = (buf[1] & 0xFF) | ((buf[2] & 0xFF) << 8) | ((buf[3] & 0xFF) << 16) | ((buf[4] & 0xFF) << 24);
+        Log.i("Scrcpy", "injectControlEvenv: action=" + action + ", keycode=" + keycode);
+        // 客户端发送 action=0 表示按下，注入完整的 DOWN+UP 事件
+        injectKeycode(keycode);
+        return;
+    }
+    // 旧格式解析
         int[] buffer = controlByteToIntArray(buf);
 
         long now = SystemClock.uptimeMillis();
