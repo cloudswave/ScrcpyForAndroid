@@ -264,6 +264,12 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         // 检查是否已设置服务器和登录
         checkAndShowServerSettings();
         
+        // 默认隐藏IP输入和连接按钮
+        hideHomeControls();
+        
+        // 设置标题栏点击事件（连续5次显示后门）
+        setupTitleClickCounter();
+        
         final Button startButton = findViewById(R.id.button_start);
         // final Button floatButton = findViewById(R.id.button_start_float);
 
@@ -946,6 +952,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         });
     }
     
+    private int titleClickCount = 0;
+    private long lastClickTime = 0;
+    private static final int CLICK_INTERVAL = 500; // 500ms内点击有效
+    private static final int CLICK_THRESHOLD = 5; // 5次
+    
     /**
      * 检查并显示服务器设置弹框
      */
@@ -961,6 +972,49 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         // 如果未登录，显示登录弹框
         if (!apiClient.isLoggedIn()) {
             showLoginDialog();
+        }
+    }
+    
+    /**
+     * 隐藏首页IP输入和连接按钮
+     */
+    private void hideHomeControls() {
+        View scrollView = findViewById(R.id.main_scroll_view);
+        if (scrollView != null) {
+            scrollView.setVisibility(View.GONE);
+        }
+    }
+    
+    /**
+     * 显示首页IP输入和连接按钮（后门）
+     */
+    private void showHomeControls() {
+        View scrollView = findViewById(R.id.main_scroll_view);
+        if (scrollView != null) {
+            scrollView.setVisibility(View.VISIBLE);
+            Toast.makeText(this, "已显示高级设置", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    /**
+     * 设置标题栏点击事件（连续5次显示后门）
+     */
+    private void setupTitleClickCounter() {
+        View titleBar = findViewById(R.id.title_bar);
+        if (titleBar != null) {
+            titleBar.setOnClickListener(v -> {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastClickTime > CLICK_INTERVAL) {
+                    titleClickCount = 0;
+                }
+                titleClickCount++;
+                lastClickTime = currentTime;
+                
+                if (titleClickCount >= CLICK_THRESHOLD) {
+                    titleClickCount = 0;
+                    showHomeControls();
+                }
+            });
         }
     }
     

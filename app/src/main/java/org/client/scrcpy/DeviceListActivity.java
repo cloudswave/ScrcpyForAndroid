@@ -18,7 +18,9 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
 import org.client.scrcpy.adapter.DeviceAdapter;
 import org.client.scrcpy.api.ApiClient;
 import org.client.scrcpy.model.DeviceInfo;
@@ -165,6 +167,30 @@ public class DeviceListActivity extends Activity {
     private void initViews() {
         deviceGrid = findViewById(R.id.device_grid);
         addButton = findViewById(R.id.add_device_button);
+        
+        // 显示用户名
+        TextView tvUsername = findViewById(R.id.tv_username);
+        ApiClient apiClient = ApiClient.getInstance(this);
+        if (tvUsername != null && apiClient.isLoggedIn()) {
+            tvUsername.setText(apiClient.getUsername());
+        }
+        
+        // 退出登录按钮
+        ImageButton btnLogout = findViewById(R.id.btn_logout);
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                new AlertDialog.Builder(this)
+                    .setTitle("退出登录")
+                    .setMessage("确定要退出登录吗？")
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        ApiClient.getInstance(this).logout();
+                        // 跳转回首页
+                        NavigationManager.getInstance().navigateToMain(this);
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
+            });
+        }
     }
 
     private void setupBottomNavigation() {
@@ -308,27 +334,83 @@ public class DeviceListActivity extends Activity {
     private void setupClickListeners() {
         if (addButton != null) {
             addButton.setOnClickListener(v -> {
-                // Show add device dialog
-                showAddDeviceDialog();
-                // Check clipboard for devices before showing add dialog
-                checkClipboardForDevices();
+                showRedeemDeviceDialog();
             });
         }
 
         deviceGrid.setOnItemClickListener((parent, view, position, id) -> {
             DeviceInfo device = deviceList.get(position);
-            // Start the main activity with the device info
             Intent intent = new Intent(DeviceListActivity.this, MainActivity.class);
             intent.putExtra(MainActivity.START_REMOTE, true);
             PreUtils.put(DeviceListActivity.this, Constant.CONTROL_REMOTE_ADDR, device.getIp());
             startActivity(intent);
         });
-
-        deviceGrid.setOnItemLongClickListener((parent, view, position, id) -> {
-            DeviceInfo device = deviceList.get(position);
-            showDeviceOptionsDialog(device, position);
-            return true;
+        
+        // 移除长按事件
+    }
+    
+    /**
+     * 显示兑换设备弹框
+     */
+    private void showRedeemDeviceDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_redeem, null);
+        EditText etCode = dialogView.findViewById(R.id.et_redeem_code);
+        Button btnRedeem = dialogView.findViewById(R.id.btn_redeem);
+        
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create();
+        
+        btnRedeem.setOnClickListener(v -> {
+            String code = etCode.getText().toString().trim();
+            if (code.isEmpty()) {
+                Toast.makeText(this, "请输入兑换码", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            btnRedeem.setEnabled(false);
+            btnRedeem.setText("兑换中...");
+            
+            redeemDevice(code, dialog, btnRedeem);
         });
+        
+        dialog.show();
+    }
+    
+    /**
+     * 兑换设备
+     */
+    private void redeemDevice(String code, AlertDialog dialog, Button btnRedeem) {
+        ApiClient apiClient = ApiClient.getInstance(this);
+        
+        new Thread(() -> {
+            try {
+                apiClient.activateDevice(code);
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "兑换成功", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    // 刷新设备列表
+                    loadDevices();
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    btnRedeem.setEnabled(true);
+                    btnRedeem.setText("兑换");
+                    Toast.makeText(this, "兑换失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
+    }
+    
+    /**
+     * 加载设备列表（只从API获取）
+     */
+    private void loadDevices() {
+        // 清空本地列表，只显示API设备
+        deviceList = new ArrayList<>();
+        
+        // 从 API 获取远程设备
+        loadRemoteDevices();
     }
 
     private Dialog createDeviceDialog() { 

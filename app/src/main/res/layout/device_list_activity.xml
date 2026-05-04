@@ -4,29 +4,49 @@
     android:layout_height="match_parent"
     android:background="#1D2228">
 
-    <TextView
-        android:id="@+id/tips_text"
+    <!-- 顶部栏：用户名 + 退出按钮 -->
+    <LinearLayout
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:text="@string/long_press_tips"
-        android:textColor="@android:color/white"
-        android:textSize="14sp"
-        android:textAlignment="center" />
+        android:background="#1e1e1e"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
 
+        <TextView
+            android:id="@+id/tv_username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="用户名"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btn_logout"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="退出登录"
+            android:src="@android:drawable/ic_menu_revert"
+            android:tint="#ffffff" />
+
+    </LinearLayout>
+
+    <!-- 增加设备按钮 -->
     <ImageButton
         android:id="@+id/add_device_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/top_bar"
         android:layout_alignParentRight="true"
         android:layout_marginTop="8dp"
         android:layout_marginRight="16dp"
         android:src="@android:drawable/ic_menu_add"
-        android:contentDescription="Add Device" />
+        android:contentDescription="兑换设备" />
 
     <GridView
         android:id="@+id/device_grid"
