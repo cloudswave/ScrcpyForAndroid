@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import org.client.scrcpy.adapter.DeviceAdapter;
+import org.client.scrcpy.api.ApiClient;
 import org.client.scrcpy.model.DeviceInfo;
 import org.client.scrcpy.utils.PreUtils;
 import org.client.scrcpy.ScrcpyClient;
@@ -180,6 +181,17 @@ public class DeviceListActivity extends Activity {
     }
 
     private void loadDevices() {
+        // 先加载本地设备列表
+        loadLocalDevices();
+        
+        // 然后从 API 获取远程设备列表并融合
+        loadRemoteDevices();
+        
+        // Sync with home page history
+        syncWithHomePageHistory();
+    }
+    
+    private void loadLocalDevices() {
         // Load devices from preferences
         String devicesJson = PreUtils.get(this, Constant.DEVICE_LIST_KEY, "");
         deviceList = new ArrayList<>();
@@ -194,17 +206,17 @@ public class DeviceListActivity extends Activity {
                     try {
                         org.json.JSONObject jsonObject = jsonArray.getJSONObject(i);
                         String name = jsonObject.optString("name", "");
-                    String screenshot = jsonObject.optString("screenshot", null);
+                        String screenshot = jsonObject.optString("screenshot", null);
                         String ip = jsonObject.getString("ip");
                         // If name is empty, use IP as name
                         if (name.isEmpty()) {
                             name = ip;
                         }
-                    DeviceInfo device = new DeviceInfo(name, ip);
-                    if (screenshot != null && !screenshot.isEmpty()) {
-                        device.setLastScreenshotPath(screenshot);
-                    }
-                    deviceList.add(device);
+                        DeviceInfo device = new DeviceInfo(name, ip);
+                        if (screenshot != null && !screenshot.isEmpty()) {
+                            device.setLastScreenshotPath(screenshot);
+                        }
+                        deviceList.add(device);
                     } catch (org.json.JSONException e) {
                         // If it's not an object, try as string (old format)
                         String ip = jsonArray.getString(i);
@@ -218,9 +230,44 @@ public class DeviceListActivity extends Activity {
                 deviceList.add(new DeviceInfo("Device 2", "192.168.1.101:5555"));
             }
         }
+    }
+    
+    private void loadRemoteDevices() {
+        // 从 API 获取远程设备
+        ApiClient apiClient = ApiClient.getInstance(this);
         
-        // Sync with home page history
-        syncWithHomePageHistory();
+        if (!apiClient.isLoggedIn() || !apiClient.hasServerUrl()) {
+            return;
+        }
+        
+        new Thread(() -> {
+            try {
+                List<ApiClient.Device> remoteDevices = apiClient.getDevices();
+                
+                runOnUiThread(() -> {
+                    for (ApiClient.Device remoteDevice : remoteDevices) {
+                        // 检查是否已存在
+                        boolean exists = false;
+                        for (DeviceInfo localDevice : deviceList) {
+                            if (localDevice.getIp().equals(remoteDevice.deviceSerial)) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        // 不存在则添加
+                        if (!exists) {
+                            deviceList.add(new DeviceInfo(remoteDevice.deviceName, remoteDevice.deviceSerial));
+                        }
+                    }
+                    // 刷新列表
+                    if (deviceAdapter != null) {
+                        deviceAdapter.notifyDataSetChanged();
+                    }
+                });
+            } catch (Exception e) {
+                android.util.Log.e("DeviceListActivity", "Load remote devices failed", e);
+            }
+        }).start();
     }
     
     private void syncWithHomePageHistory() {

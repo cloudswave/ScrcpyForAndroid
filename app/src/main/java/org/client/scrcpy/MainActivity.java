@@ -24,6 +24,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
@@ -33,6 +34,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.AlertDialog;
 import android.widget.LinearLayout;
 import android.widget.ListPopupWindow;
 import android.widget.Spinner;
@@ -47,6 +49,7 @@ import org.client.scrcpy.utils.Progress;
 import org.client.scrcpy.utils.ThreadUtils;
 import org.client.scrcpy.utils.Util;
 import org.client.scrcpy.navigation.NavigationManager;
+import org.client.scrcpy.api.ApiClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -257,6 +260,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         landscape = false;  // 将模式重新置为 竖屏，模式不正确将导致连接黑屏
         setContentView(R.layout.activity_main);
+        
+        // 检查是否已设置服务器和登录
+        checkAndShowServerSettings();
+        
         final Button startButton = findViewById(R.id.button_start);
         // final Button floatButton = findViewById(R.id.button_start_float);
 
@@ -937,6 +944,134 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 });
             }
         });
+    }
+    
+    /**
+     * 检查并显示服务器设置弹框
+     */
+    private void checkAndShowServerSettings() {
+        ApiClient apiClient = ApiClient.getInstance(this);
+        
+        // 如果没有设置服务器地址，显示设置弹框
+        if (!apiClient.hasServerUrl()) {
+            showServerSettingsDialog();
+            return;
+        }
+        
+        // 如果未登录，显示登录弹框
+        if (!apiClient.isLoggedIn()) {
+            showLoginDialog();
+        }
+    }
+    
+    /**
+     * 显示服务器设置和登录弹框
+     */
+    private void showServerSettingsDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_server_settings, null);
+        EditText etServerUrl = dialogView.findViewById(R.id.et_server_url);
+        EditText etUsername = dialogView.findViewById(R.id.et_username);
+        EditText etPassword = dialogView.findViewById(R.id.et_password);
+        Button btnLogin = dialogView.findViewById(R.id.btn_login);
+        
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setTitle("服务器设置")
+            .setView(dialogView)
+            .setCancelable(false)
+            .create();
+        
+        btnLogin.setOnClickListener(v -> {
+            String serverUrl = etServerUrl.getText().toString().trim();
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            
+            if (serverUrl.isEmpty()) {
+                Toast.makeText(this, "请输入服务器地址", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "请输入用户名和密码", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // 保存服务器地址
+            ApiClient apiClient = ApiClient.getInstance(this);
+            apiClient.setServerUrl(serverUrl);
+            
+            // 尝试登录
+            btnLogin.setEnabled(false);
+            btnLogin.setText("登录中...");
+            
+            new Thread(() -> {
+                try {
+                    apiClient.login(username, password);
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        btnLogin.setEnabled(true);
+                        btnLogin.setText("登录");
+                        Toast.makeText(this, "登录失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }).start();
+        });
+        
+        dialog.show();
+    }
+    
+    /**
+     * 显示登录弹框（服务器已设置）
+     */
+    private void showLoginDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_server_settings, null);
+        
+        // 隐藏服务器地址输入
+        dialogView.findViewById(R.id.tv_server_url).setVisibility(View.GONE);
+        dialogView.findViewById(R.id.et_server_url).setVisibility(View.GONE);
+        
+        EditText etUsername = dialogView.findViewById(R.id.et_username);
+        EditText etPassword = dialogView.findViewById(R.id.et_password);
+        Button btnLogin = dialogView.findViewById(R.id.btn_login);
+        
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setTitle("登录")
+            .setView(dialogView)
+            .setCancelable(false)
+            .create();
+        
+        btnLogin.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "请输入用户名和密码", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            btnLogin.setEnabled(false);
+            btnLogin.setText("登录中...");
+            
+            new Thread(() -> {
+                try {
+                    ApiClient.getInstance(this).login(username, password);
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        btnLogin.setEnabled(true);
+                        btnLogin.setText("登录");
+                        Toast.makeText(this, "登录失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }).start();
+        });
+        
+        dialog.show();
     }
 
 
