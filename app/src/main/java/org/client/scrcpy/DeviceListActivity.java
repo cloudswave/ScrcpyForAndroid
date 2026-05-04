@@ -401,17 +401,6 @@ public class DeviceListActivity extends Activity {
             }
         }).start();
     }
-    
-    /**
-     * 加载设备列表（只从API获取）
-     */
-    private void loadDevices() {
-        // 清空本地列表，只显示API设备
-        deviceList = new ArrayList<>();
-        
-        // 从 API 获取远程设备
-        loadRemoteDevices();
-    }
 
     private Dialog createDeviceDialog() { 
         Dialog dialog = new Dialog(this);
