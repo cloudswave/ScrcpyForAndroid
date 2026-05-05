@@ -53,6 +53,7 @@ public class DeviceAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.devicePreview = convertView.findViewById(R.id.device_preview);
             holder.deviceName = convertView.findViewById(R.id.device_name);
+            holder.tvDaysRemaining = convertView.findViewById(R.id.tv_days_remaining);
             holder.connectionStatus = convertView.findViewById(R.id.connection_status);
             convertView.setTag(holder);
         } else {
@@ -61,6 +62,22 @@ public class DeviceAdapter extends BaseAdapter {
 
         DeviceInfo device = devices.get(position);
         holder.deviceName.setText(device.getName());
+        
+        // 显示剩余天数
+        if (holder.tvDaysRemaining != null) {
+            int days = device.getDaysRemaining();
+            if (days > 0) {
+                holder.tvDaysRemaining.setText("剩余" + days + "天");
+                holder.tvDaysRemaining.setTextColor(0xFF00FF00); // 绿色
+            } else if (days == 0) {
+                holder.tvDaysRemaining.setText("今天到期");
+                holder.tvDaysRemaining.setTextColor(0xFFFFFF00); // 黄色
+            } else {
+                holder.tvDaysRemaining.setText("已过期");
+                holder.tvDaysRemaining.setTextColor(0xFFFF0000); // 红色
+            }
+            holder.tvDaysRemaining.setVisibility(View.VISIBLE);
+        }
         
         // Update connection status indicator based on device's isConnected field
         if (holder.connectionStatus != null) {
@@ -95,6 +112,7 @@ public class DeviceAdapter extends BaseAdapter {
    private static class ViewHolder {
         ImageView devicePreview;
         TextView deviceName;
+        TextView tvDaysRemaining;
         View connectionStatus;
     }
 

@@ -7,13 +7,11 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:id="@+id/title_bar"
         android:layout_height="80dp"
         android:layout_alignParentTop="true"
         android:background="#3C93F0">
 
         <TextView
-            android:id="@+id/tv_title"
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_gravity="center_vertical"
@@ -23,7 +21,7 @@
             android:layout_marginBottom="5dp"
             android:gravity="center_vertical"
             android:padding="20dp"
-            android:text="云手机"
+            android:text="云手机by搞机玩家"
             android:textColor="@color/white" />
 
     </FrameLayout>
@@ -60,27 +58,30 @@
                 android:paddingRight="10dp"
                 android:paddingBottom="5dp">
 
-                <!-- IP输入区域包装在一个隐藏的布局中 -->
-    <LinearLayout
-        android:id="@+id/settings_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="5dp"
+                    android:text="投屏设置"
+                    android:textStyle="bold"
+                    android:textAppearance="@android:style/TextAppearance"
+                    android:textColor="@color/white" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:text="@string/label_server_ip"
-            android:textAppearance="@android:style/TextAppearance"
-            android:textColor="@color/white" />
+                <!-- 隐藏IP提示文案 -->
+                <TextView
+                    android:id="@+id/tv_ip_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="5dp"
+                    android:text="@string/label_server_ip"
+                    android:visibility="gone"
+                    android:textAppearance="@android:style/TextAppearance"
+                    android:textColor="@color/white" />
 
-        <LinearLayout
-            android:id="@+id/server_host_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginRight="20dp"
                     android:background="@drawable/edit_background"
@@ -248,7 +249,6 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:checked="true"
                 android:text="@string/switch1"
                 android:textColor="@color/white"
                 android:textSize="15sp" />
@@ -268,7 +268,6 @@
                 android:textColor="@color/white"
                 android:textSize="16sp" />
         </LinearLayout>
-    </LinearLayout>
     </ScrollView>
 
     <include

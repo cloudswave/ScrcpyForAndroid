@@ -341,5 +341,26 @@ public class ApiClient {
         public String createdAt;
         public boolean allocated;
         public String expiresAt;
+        
+        /**
+         * 计算剩余天数
+         */
+        public int getDaysRemaining() {
+            if (expiresAt == null || expiresAt.isEmpty()) {
+                return 0;
+            }
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
+                java.util.Date expiresDate = sdf.parse(expiresAt);
+                if (expiresDate == null) return 0;
+                
+                long diff = expiresDate.getTime() - System.currentTimeMillis();
+                if (diff <= 0) return 0;
+                
+                return (int) (diff / (1000 * 60 * 60 * 24));
+            } catch (Exception e) {
+                return 0;
+            }
+        }
     }
 }

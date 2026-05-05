@@ -13,6 +13,20 @@
         android:background="#323540"
         android:contentDescription="Device Preview" />
 
+    <!-- 剩余天数 -->
+    <TextView
+        android:id="@+id/tv_days_remaining"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/device_preview"
+        android:layout_alignTop="@id/device_preview"
+        android:layout_margin="8dp"
+        android:background="#80000000"
+        android:padding="4dp"
+        android:text="剩余0天"
+        android:textColor="#00FF00"
+        android:textSize="10sp" />
+
     <TextView
         android:id="@+id/device_name"
         android:layout_width="match_parent"

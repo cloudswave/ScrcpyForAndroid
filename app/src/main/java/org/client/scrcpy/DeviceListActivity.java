@@ -341,7 +341,10 @@ public class DeviceListActivity extends Activity {
                         }
                         // 不存在则添加
                         if (!exists) {
-                            deviceList.add(new DeviceInfo(remoteDevice.deviceName, remoteDevice.deviceSerial));
+                            DeviceInfo deviceInfo = new DeviceInfo(remoteDevice.deviceName, remoteDevice.deviceSerial);
+                            deviceInfo.setDaysRemaining(remoteDevice.getDaysRemaining());
+                            deviceInfo.setExpiresAt(remoteDevice.expiresAt);
+                            deviceList.add(deviceInfo);
                         }
                     }
                     // 刷新列表

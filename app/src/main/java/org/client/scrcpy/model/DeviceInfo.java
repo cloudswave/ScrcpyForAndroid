@@ -5,12 +5,15 @@ public class DeviceInfo {
     private String ip;
     private String lastScreenshotPath;
     private boolean isConnected;
+    private int daysRemaining;
+    private String expiresAt;
 
     public DeviceInfo(String name, String ip) {
         this.name = name;
         this.ip = ip;
         this.lastScreenshotPath = null;
         this.isConnected = false;
+        this.daysRemaining = 0;
     }
 
     public String getName() {
@@ -27,6 +30,22 @@ public class DeviceInfo {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public int getDaysRemaining() {
+        return daysRemaining;
+    }
+
+    public void setDaysRemaining(int days) {
+        this.daysRemaining = days;
+    }
+    
+    public String getExpiresAt() {
+        return expiresAt;
+    }
+    
+    public void setExpiresAt(String expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     public String getLastScreenshotPath() {
