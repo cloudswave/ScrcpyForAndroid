@@ -68,21 +68,27 @@ public class DeviceAdapter extends BaseAdapter {
             String expiresAt = device.getExpiresAt();
             int days = device.getDaysRemaining();
             
-            if (days == -1 || expiresAt == null || expiresAt.isEmpty() || expiresAt.equals("null")) {
+            // 如果没有过期信息，不显示（等待远程数据加载）
+            if (expiresAt == null || expiresAt.isEmpty() || expiresAt.equals("null")) {
+                holder.tvDaysRemaining.setVisibility(View.GONE);
+            } else if (days == -1) {
                 // 永不过期
+                holder.tvDaysRemaining.setVisibility(View.VISIBLE);
                 holder.tvDaysRemaining.setText("永久");
                 holder.tvDaysRemaining.setTextColor(0xFF00FF00); // 绿色
             } else if (days > 0) {
+                holder.tvDaysRemaining.setVisibility(View.VISIBLE);
                 holder.tvDaysRemaining.setText("剩余" + days + "天");
                 holder.tvDaysRemaining.setTextColor(0xFF00FF00); // 绿色
             } else if (days == 0) {
+                holder.tvDaysRemaining.setVisibility(View.VISIBLE);
                 holder.tvDaysRemaining.setText("今天到期");
                 holder.tvDaysRemaining.setTextColor(0xFFFFFF00); // 黄色
             } else {
+                holder.tvDaysRemaining.setVisibility(View.VISIBLE);
                 holder.tvDaysRemaining.setText("已过期");
                 holder.tvDaysRemaining.setTextColor(0xFFFF0000); // 红色
             }
-            holder.tvDaysRemaining.setVisibility(View.VISIBLE);
         }
         
         // Update connection status indicator based on device's isConnected field
