@@ -8,6 +8,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        android:id="@+id/title_bar"
         android:layout_alignParentTop="true"
         android:background="#3C93F0">
 
