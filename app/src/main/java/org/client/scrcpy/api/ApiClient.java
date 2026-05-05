@@ -208,11 +208,13 @@ public class ApiClient {
                 
                 // 检查是否分配给当前用户
                 JSONArray allocatedUsers = json.optJSONArray("allocated_users");
-                if (allocatedUsers != null) {
+                if (allocatedUsers != null && allocatedUsers.length() > 0) {
                     for (int j = 0; j < allocatedUsers.length(); j++) {
                         JSONObject user = allocatedUsers.getJSONObject(j);
                         device.allocated = true;
-                        device.expiresAt = user.optString("expires_at", "");
+                        String expires = user.optString("expires_at", "");
+                        device.expiresAt = expires;
+                        Log.d(TAG, "Device " + device.deviceName + " expires_at: " + expires);
                     }
                 }
                 
