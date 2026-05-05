@@ -68,7 +68,7 @@ public class DeviceAdapter extends BaseAdapter {
             String expiresAt = device.getExpiresAt();
             int days = device.getDaysRemaining();
             
-            if (expiresAt == null || expiresAt.isEmpty()) {
+            if (days == -1 || expiresAt == null || expiresAt.isEmpty() || expiresAt.equals("null")) {
                 // 永不过期
                 holder.tvDaysRemaining.setText("永久");
                 holder.tvDaysRemaining.setTextColor(0xFF00FF00); // 绿色

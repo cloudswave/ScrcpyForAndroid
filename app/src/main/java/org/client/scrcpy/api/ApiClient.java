@@ -343,8 +343,8 @@ public class ApiClient {
          * 计算剩余天数
          */
         public int getDaysRemaining() {
-            if (expiresAt == null || expiresAt.isEmpty()) {
-                return 0;
+            if (expiresAt == null || expiresAt.isEmpty() || expiresAt.equals("null")) {
+                return -1; // -1 表示永不过期
             }
             try {
                 // 处理 ISO 8601 格式: 2026-06-04T01:43:33.860Z
@@ -355,14 +355,14 @@ public class ApiClient {
                 }
                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
                 java.util.Date expiresDate = sdf.parse(parsedDate);
-                if (expiresDate == null) return 0;
+                if (expiresDate == null) return -1;
                 
                 long diff = expiresDate.getTime() - System.currentTimeMillis();
                 if (diff <= 0) return 0;
                 
                 return (int) (diff / (1000 * 60 * 60 * 24));
             } catch (Exception e) {
-                return 0;
+                return -1;
             }
         }
     }
