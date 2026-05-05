@@ -206,19 +206,11 @@ public class ApiClient {
                 device.deviceName = json.getString("device_name");
                 device.createdAt = json.optString("created_at", "");
                 
-                // 打印完整设备JSON用于调试
-                Log.d(TAG, "Device JSON " + i + ": " + json.toString());
-                
-                // 检查是否分配给当前用户
-                JSONArray allocatedUsers = json.optJSONArray("allocated_users");
-                if (allocatedUsers != null && allocatedUsers.length() > 0) {
-                    for (int j = 0; j < allocatedUsers.length(); j++) {
-                        JSONObject user = allocatedUsers.getJSONObject(j);
-                        device.allocated = true;
-                        String expires = user.optString("expires_at", "");
-                        device.expiresAt = expires;
-                        Log.d(TAG, "Device " + device.deviceName + " expires_at: " + expires);
-                    }
+                // 直接从设备对象获取过期时间
+                String expiresAt = json.optString("expires_at", "");
+                if (expiresAt != null && !expiresAt.isEmpty() && !expiresAt.equals("null")) {
+                    device.allocated = true;
+                    device.expiresAt = expiresAt;
                 }
                 
                 devices.add(device);
@@ -355,8 +347,14 @@ public class ApiClient {
                 return 0;
             }
             try {
+                // 处理 ISO 8601 格式: 2026-06-04T01:43:33.860Z
+                String parsedDate = expiresAt.replace("T", " ").replace("Z", "");
+                // 去除毫秒
+                if (parsedDate.contains(".")) {
+                    parsedDate = parsedDate.substring(0, parsedDate.indexOf("."));
+                }
                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
-                java.util.Date expiresDate = sdf.parse(expiresAt);
+                java.util.Date expiresDate = sdf.parse(parsedDate);
                 if (expiresDate == null) return 0;
                 
                 long diff = expiresDate.getTime() - System.currentTimeMillis();
