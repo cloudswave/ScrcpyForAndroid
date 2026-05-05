@@ -202,7 +202,9 @@ public class ApiClient {
                 JSONObject json = jsonArray.getJSONObject(i);
                 Device device = new Device();
                 device.id = json.getInt("id");
-                device.deviceSerial = json.getString("device_serial");
+                // tunnel 字段优先，否则使用 device_serial
+                String tunnel = json.optString("tunnel", "");
+                device.deviceSerial = (!tunnel.isEmpty() && !tunnel.equals("null")) ? tunnel : json.getString("device_serial");
                 device.deviceName = json.getString("device_name");
                 device.createdAt = json.optString("created_at", "");
                 
