@@ -389,6 +389,15 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 aSwitch1.setTextColor(Color.WHITE);
                 // aSwitch1.setVisibility(View.VISIBLE);
             }
+            // 保存开关状态
+            PreUtils.put(context, Constant.CONTROL_NO, aSwitch0.isChecked());
+            PreUtils.put(context, Constant.CONTROL_NAV, aSwitch1.isChecked());
+        });
+        
+        aSwitch1.setOnClickListener(v -> {
+            // 保存开关状态
+            PreUtils.put(context, Constant.CONTROL_NO, aSwitch0.isChecked());
+            PreUtils.put(context, Constant.CONTROL_NAV, aSwitch1.isChecked());
         });
     }
 
