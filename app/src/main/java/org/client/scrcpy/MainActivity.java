@@ -210,7 +210,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 // 检查是否需要显示登录弹框
                 if (getIntent().getExtras().getBoolean("show_login_dialog", false)) {
                     // 延迟执行，确保界面已加载
-                    getWindow().getDecorView().post(this::showServerSettingsDialog);
+                    getWindow().getDecorView().post(this::checkAndShowServerSettings);
                 }
             }
         }
