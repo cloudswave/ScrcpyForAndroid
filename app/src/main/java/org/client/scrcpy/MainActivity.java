@@ -394,6 +394,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     @SuppressLint("ClickableViewAccessibility")
     public void set_display_nd_touch() {
+        // 确保 linearLayout 已初始化
+        if (linearLayout == null) {
+            linearLayout = findViewById(R.id.container1);
+        }
+        
         DisplayMetrics metrics = new DisplayMetrics();
         if (ViewConfiguration.get(context).hasPermanentMenuKey()) {
             getWindowManager().getDefaultDisplay().getMetrics(metrics);
