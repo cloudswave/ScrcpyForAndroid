@@ -184,6 +184,11 @@ public class DeviceListActivity extends Activity {
                     .setMessage("确定要退出登录吗？")
                     .setPositiveButton("确定", (dialog, which) -> {
                         ApiClient.getInstance(this).logout();
+                        // 清空设备列表
+                        deviceList.clear();
+                        if (deviceAdapter != null) {
+                            deviceAdapter.notifyDataSetChanged();
+                        }
                         // 显示登录弹框
                         showLoginDialog();
                     })
