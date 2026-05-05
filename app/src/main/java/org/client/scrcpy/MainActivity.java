@@ -972,13 +972,18 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     }
     
     /**
-     * 隐藏首页IP提示文案和连接按钮
+     * 隐藏首页IP提示文案、输入框和连接按钮
      */
     private void hideHomeControls() {
         // 隐藏IP提示文案
         View tvIpLabel = findViewById(R.id.tv_ip_label);
         if (tvIpLabel != null) {
             tvIpLabel.setVisibility(View.GONE);
+        }
+        // 隐藏IP输入框
+        View serverHostLayout = findViewById(R.id.server_host_layout);
+        if (serverHostLayout != null) {
+            serverHostLayout.setVisibility(View.GONE);
         }
         // 隐藏连接按钮
         View buttonStart = findViewById(R.id.button_start);
@@ -988,12 +993,16 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     }
     
     /**
-     * 显示首页IP提示文案和连接按钮（后门）
+     * 显示首页IP提示文案、输入框和连接按钮（后门）
      */
     private void showHomeControls() {
         View tvIpLabel = findViewById(R.id.tv_ip_label);
         if (tvIpLabel != null) {
             tvIpLabel.setVisibility(View.VISIBLE);
+        }
+        View serverHostLayout = findViewById(R.id.server_host_layout);
+        if (serverHostLayout != null) {
+            serverHostLayout.setVisibility(View.VISIBLE);
         }
         View buttonStart = findViewById(R.id.button_start);
         if (buttonStart != null) {
