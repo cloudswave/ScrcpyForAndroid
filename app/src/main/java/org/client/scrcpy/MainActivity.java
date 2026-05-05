@@ -179,11 +179,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         super.onCreate(savedInstanceState);
         this.context = this;
         
-        // 检查授权
-        if (!isAuthorized()) {
-            showAuthorizationDialog();
-            return;  // 授权完成前不继续初始化
-        }
+        // 移除授权码检查
         
         if (savedInstanceState != null) {
             first_time = savedInstanceState.getBoolean("first_time");
