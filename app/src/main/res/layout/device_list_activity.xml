@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#1D2228">
 
-    <!-- 顶部栏：用户名 + 退出按钮 -->
+    <!-- 顶部栏：用户名 + 退出按钮 + 加号 -->
     <LinearLayout
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
@@ -26,9 +26,19 @@
             android:textStyle="bold" />
 
         <ImageButton
+            android:id="@+id/add_device_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="兑换设备"
+            android:src="@android:drawable/ic_menu_add"
+            android:tint="#ffffff" />
+
+        <ImageButton
             android:id="@+id/btn_logout"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_marginStart="8dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="退出登录"
             android:src="@android:drawable/ic_menu_revert"
@@ -36,23 +46,11 @@
 
     </LinearLayout>
 
-    <!-- 增加设备按钮 -->
-    <ImageButton
-        android:id="@+id/add_device_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_below="@id/top_bar"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="16dp"
-        android:src="@android:drawable/ic_menu_add"
-        android:contentDescription="兑换设备" />
-
     <GridView
         android:id="@+id/device_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/add_device_button"
+        android:layout_below="@id/top_bar"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="60dp"
         android:numColumns="auto_fit"

@@ -981,7 +981,16 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private void hideHomeControls() {
         View scrollView = findViewById(R.id.main_scroll_view);
         if (scrollView != null) {
-            scrollView.setVisibility(View.GONE);
+            scrollView.setVisibility(View.VISIBLE);
+        }
+        // 只隐藏IP输入框和连接按钮区域
+        View serverHostLayout = findViewById(R.id.server_host_layout);
+        if (serverHostLayout != null) {
+            serverHostLayout.setVisibility(View.GONE);
+        }
+        View buttonStart = findViewById(R.id.button_start);
+        if (buttonStart != null) {
+            buttonStart.setVisibility(View.GONE);
         }
     }
     
@@ -989,11 +998,15 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
      * 显示首页IP输入和连接按钮（后门）
      */
     private void showHomeControls() {
-        View scrollView = findViewById(R.id.main_scroll_view);
-        if (scrollView != null) {
-            scrollView.setVisibility(View.VISIBLE);
-            Toast.makeText(this, "已显示高级设置", Toast.LENGTH_SHORT).show();
+        View serverHostLayout = findViewById(R.id.server_host_layout);
+        if (serverHostLayout != null) {
+            serverHostLayout.setVisibility(View.VISIBLE);
         }
+        View buttonStart = findViewById(R.id.button_start);
+        if (buttonStart != null) {
+            buttonStart.setVisibility(View.VISIBLE);
+        }
+        Toast.makeText(this, "已显示高级设置", Toast.LENGTH_SHORT).show();
     }
     
     /**
