@@ -975,14 +975,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
      * 隐藏首页IP输入和连接按钮
      */
     private void hideHomeControls() {
-        View scrollView = findViewById(R.id.main_scroll_view);
-        if (scrollView != null) {
-            scrollView.setVisibility(View.VISIBLE);
-        }
-        // 只隐藏IP输入框和连接按钮区域
-        View serverHostLayout = findViewById(R.id.server_host_layout);
-        if (serverHostLayout != null) {
-            serverHostLayout.setVisibility(View.GONE);
+        View settingsPanel = findViewById(R.id.settings_panel);
+        if (settingsPanel != null) {
+            settingsPanel.setVisibility(View.GONE);
         }
         View buttonStart = findViewById(R.id.button_start);
         if (buttonStart != null) {
@@ -994,9 +989,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
      * 显示首页IP输入和连接按钮（后门）
      */
     private void showHomeControls() {
-        View serverHostLayout = findViewById(R.id.server_host_layout);
-        if (serverHostLayout != null) {
-            serverHostLayout.setVisibility(View.VISIBLE);
+        View settingsPanel = findViewById(R.id.settings_panel);
+        if (settingsPanel != null) {
+            settingsPanel.setVisibility(View.VISIBLE);
         }
         View buttonStart = findViewById(R.id.button_start);
         if (buttonStart != null) {

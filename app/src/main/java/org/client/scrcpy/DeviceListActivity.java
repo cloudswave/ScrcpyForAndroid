@@ -184,13 +184,72 @@ public class DeviceListActivity extends Activity {
                     .setMessage("确定要退出登录吗？")
                     .setPositiveButton("确定", (dialog, which) -> {
                         ApiClient.getInstance(this).logout();
-                        // 跳转回首页
-                        NavigationManager.getInstance().navigateToMain(this);
+                        // 显示登录弹框
+                        showLoginDialog();
                     })
                     .setNegativeButton("取消", null)
                     .show();
             });
         }
+    }
+    
+    /**
+     * 显示登录弹框
+     */
+    private void showLoginDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_server_settings, null);
+        
+        // 隐藏服务器地址输入
+        dialogView.findViewById(R.id.tv_server_url).setVisibility(View.GONE);
+        dialogView.findViewById(R.id.et_server_url).setVisibility(View.GONE);
+        
+        EditText etUsername = dialogView.findViewById(R.id.et_username);
+        EditText etPassword = dialogView.findViewById(R.id.et_password);
+        Button btnLogin = dialogView.findViewById(R.id.btn_login);
+        
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setTitle("登录")
+            .setView(dialogView)
+            .setCancelable(false)
+            .create();
+        
+        btnLogin.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "请输入用户名和密码", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            btnLogin.setEnabled(false);
+            btnLogin.setText("登录中...");
+            
+            new Thread(() -> {
+                try {
+                    ApiClient.getInstance(this).login(username, password);
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        // 刷新列表
+                        loadDevices();
+                        // 更新用户名显示
+                        TextView tvUsername = findViewById(R.id.tv_username);
+                        if (tvUsername != null) {
+                            tvUsername.setText(ApiClient.getInstance(this).getUsername());
+                        }
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        btnLogin.setEnabled(true);
+                        btnLogin.setText("登录");
+                        Toast.makeText(this, "登录失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }).start();
+        });
+        
+        dialog.show();
     }
 
     private void setupBottomNavigation() {
