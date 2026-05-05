@@ -335,6 +335,9 @@ public class DeviceListActivity extends Activity {
                         boolean exists = false;
                         for (DeviceInfo localDevice : deviceList) {
                             if (localDevice.getIp().equals(remoteDevice.deviceSerial)) {
+                                // 已存在设备也同步更新过期时间
+                                localDevice.setDaysRemaining(remoteDevice.getDaysRemaining());
+                                localDevice.setExpiresAt(remoteDevice.expiresAt);
                                 exists = true;
                                 break;
                             }
