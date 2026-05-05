@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
@@ -368,8 +369,16 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         } else {
             editTextServerHost.setText(historySpServerAdr);
         }
+        // 首次安装时设置默认值
+        SharedPreferences prefs = context.getSharedPreferences("default", Context.MODE_PRIVATE);
+        if (!prefs.contains(Constant.CONTROL_NAV)) {
+            PreUtils.put(context, Constant.CONTROL_NAV, true);
+        }
+        if (!prefs.contains(Constant.CONTROL_NO)) {
+            PreUtils.put(context, Constant.CONTROL_NO, false);
+        }
         aSwitch0.setChecked(PreUtils.get(context, Constant.CONTROL_NO, false));
-        aSwitch1.setChecked(PreUtils.get(context, Constant.CONTROL_NAV, false));
+        aSwitch1.setChecked(PreUtils.get(context, Constant.CONTROL_NAV, true));
         setSpinner(R.array.options_resolution_values, R.id.spinner_video_resolution, Constant.PREFERENCE_SPINNER_RESOLUTION);
         setSpinner(R.array.options_bitrate_keys, R.id.spinner_video_bitrate, Constant.PREFERENCE_SPINNER_BITRATE);
         setSpinner(R.array.options_delay_keys, R.id.delay_control_spinner, Constant.PREFERENCE_SPINNER_DELAY);
