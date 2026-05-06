@@ -263,9 +263,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         landscape = false;  // 将模式重新置为 竖屏，模式不正确将导致连接黑屏
         setContentView(R.layout.activity_main);
         
-        // 检查是否已设置服务器和登录
-        checkAndShowServerSettings();
-        
         // 默认隐藏IP输入和连接按钮
         hideHomeControls();
         
