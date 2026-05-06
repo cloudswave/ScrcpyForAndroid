@@ -2,6 +2,10 @@ name: Android CI
 
 on:
   workflow_dispatch:  # 手动触发
+  push:
+    branches:
+      - dev
+      - main
 
 jobs:
   build:

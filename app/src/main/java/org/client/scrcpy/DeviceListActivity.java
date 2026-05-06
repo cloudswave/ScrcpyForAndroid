@@ -400,9 +400,20 @@ public class DeviceListActivity extends Activity {
                     if (deviceAdapter != null) {
                         deviceAdapter.notifyDataSetChanged();
                     }
+                    
+                    // 停止下拉刷新动画
+                    if (swipeRefreshLayout != null) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
                 });
             } catch (Exception e) {
                 android.util.Log.e("DeviceListActivity", "Load remote devices failed", e);
+                // 停止下拉刷新动画
+                runOnUiThread(() -> {
+                    if (swipeRefreshLayout != null) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
             }
         }).start();
     }
