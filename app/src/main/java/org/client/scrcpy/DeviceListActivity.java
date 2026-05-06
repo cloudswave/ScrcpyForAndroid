@@ -358,6 +358,25 @@ public class DeviceListActivity extends Activity {
                 List<ApiClient.Device> remoteDevices = apiClient.getDevices();
                 
                 runOnUiThread(() -> {
+                    // 收集远程设备serial列表
+                    List<String> remoteSerials = new ArrayList<>();
+                    for (ApiClient.Device remoteDevice : remoteDevices) {
+                        remoteSerials.add(remoteDevice.deviceSerial);
+                    }
+                    
+                    // 删除本地已删除的设备（远程不存在的设备）
+                    Iterator<DeviceInfo> iterator = deviceList.iterator();
+                    while (iterator.hasNext()) {
+                        DeviceInfo localDevice = iterator.next();
+                        // 只删除有serial的本地设备（来自远程的设备）
+                        if (!remoteSerials.contains(localDevice.getIp())) {
+                            // 检查是否是本地手动添加的设备（IP不含端口的可能是本地的）
+                            // 为简单起见，只要远程不存在的都删除
+                            iterator.remove();
+                        }
+                    }
+                    
+                    // 更新或添加远程设备
                     for (ApiClient.Device remoteDevice : remoteDevices) {
                         // 检查是否已存在
                         boolean exists = false;
@@ -378,6 +397,10 @@ public class DeviceListActivity extends Activity {
                             deviceList.add(deviceInfo);
                         }
                     }
+                    
+                    // 保存更新后的设备列表
+                    updateDeviceListInPreferences();
+                    
                     // 刷新列表
                     if (deviceAdapter != null) {
                         deviceAdapter.notifyDataSetChanged();
