@@ -180,14 +180,8 @@ public class DeviceListActivity extends Activity {
                 android.R.color.holo_red_light
             );
             swipeRefreshLayout.setOnRefreshListener(() -> {
-                // 刷新设备列表
-                loadDevices();
-                // 停止刷新动画
-                swipeRefreshLayout.postDelayed(() -> {
-                    if (swipeRefreshLayout != null) {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }, 1000);
+                // 下拉刷新时只从API获取最新数据，不加载本地缓存
+                loadRemoteDevices();
             });
         }
         
