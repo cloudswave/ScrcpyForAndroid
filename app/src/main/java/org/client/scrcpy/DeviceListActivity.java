@@ -30,6 +30,7 @@ import org.client.scrcpy.ScrcpyClient;
 import org.client.scrcpy.navigation.NavigationManager;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class DeviceListActivity extends Activity {
