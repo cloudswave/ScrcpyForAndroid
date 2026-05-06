@@ -46,20 +46,27 @@
 
     </LinearLayout>
 
-    <GridView
-        android:id="@+id/device_grid"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/top_bar"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="60dp"
-        android:numColumns="auto_fit"
-        android:columnWidth="100dp"
-        android:horizontalSpacing="4dp"
-        android:verticalSpacing="4dp"
-        android:stretchMode="columnWidth"
-        android:gravity="center"
-        android:padding="4dp" />
+        android:layout_marginBottom="60dp">
+
+        <GridView
+            android:id="@+id/device_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:numColumns="auto_fit"
+            android:columnWidth="100dp"
+            android:horizontalSpacing="4dp"
+            android:verticalSpacing="4dp"
+            android:stretchMode="columnWidth"
+            android:gravity="center"
+            android:padding="4dp" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <include
         android:id="@+id/bottom_navigation"

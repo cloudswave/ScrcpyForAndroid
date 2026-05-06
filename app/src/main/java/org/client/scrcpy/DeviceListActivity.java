@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.AlertDialog;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import org.client.scrcpy.adapter.DeviceAdapter;
 import org.client.scrcpy.api.ApiClient;
 import org.client.scrcpy.model.DeviceInfo;
@@ -34,6 +35,7 @@ import java.util.List;
 public class DeviceListActivity extends Activity {
 
     private GridView deviceGrid;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceAdapter deviceAdapter;
     private List<DeviceInfo> deviceList;
     private Handler handler;
@@ -166,6 +168,28 @@ public class DeviceListActivity extends Activity {
 
     private void initViews() {
         deviceGrid = findViewById(R.id.device_grid);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        
+        // 设置下拉刷新
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeResources(
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light
+            );
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                // 刷新设备列表
+                loadDevices();
+                // 停止刷新动画
+                swipeRefreshLayout.postDelayed(() -> {
+                    if (swipeRefreshLayout != null) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 1000);
+            });
+        }
+        
         addButton = findViewById(R.id.add_device_button);
         
         // 显示用户名
