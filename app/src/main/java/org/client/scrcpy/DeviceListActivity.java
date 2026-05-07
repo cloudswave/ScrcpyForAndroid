@@ -186,6 +186,9 @@ public class DeviceListActivity extends Activity {
         }
         
         addButton = findViewById(R.id.add_device_button);
+        if (addButton != null) {
+            addButton.setColorFilter(android.graphics.Color.WHITE);
+        }
         
         // 显示用户名
         TextView tvUsername = findViewById(R.id.tv_username);
@@ -197,6 +200,7 @@ public class DeviceListActivity extends Activity {
         // 退出登录按钮
         ImageButton btnLogout = findViewById(R.id.btn_logout);
         if (btnLogout != null) {
+            btnLogout.setColorFilter(android.graphics.Color.WHITE);
             btnLogout.setOnClickListener(v -> {
                 new AlertDialog.Builder(this)
                     .setTitle("退出登录")
