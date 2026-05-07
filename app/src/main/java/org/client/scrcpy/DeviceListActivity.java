@@ -58,7 +58,7 @@ public class DeviceListActivity extends Activity {
         checkClipboardForDevices();
         
         // Start the screenshot update loop
-        startScreenshotUpdates();
+        // startScreenshotUpdates();
     }
     
     private void checkClipboardForDevices() {

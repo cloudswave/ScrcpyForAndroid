@@ -47,6 +47,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginRight="8dp"
         android:background="@drawable/circle_shape"
-        android:contentDescription="Connection Status" />
+        android:contentDescription="Connection Status"
+        android:visibility="gone" />
 
 </RelativeLayout>
